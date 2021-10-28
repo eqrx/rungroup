@@ -26,6 +26,7 @@ linters:
     - gofumpt
     - goheader
     - goimports
+    - gomnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -73,8 +74,21 @@ linters:
     - tagliatelle
     - wsl
     # - exhaustivestruct # Not for general usage.
-    # - golint # Deprecated
-    # - interfacer # Deprecated
-    # - maligned # Deprecated
-    # - scopelint # Deprecated
-    # - gomnd
+    # - golint # Deprecated.
+    # - interfacer # Deprecated.
+    # - maligned # Deprecated.
+    # - scopelint # Deprecated.
+issues:
+  include:
+  - EXC0001 # Do not ignore errors.
+  - EXC0002 # Actually require docs for exports.
+  - EXC0003 # Don't name packages "test".
+  - EXC0004 # Unsafe pointer is worth a "nolint".
+  - EXC0005 # No ineffective breaks.
+  - EXC0006 # Unsafe pointer is worth a "nolint".
+  - EXC0009 # File permissions are important.
+  - EXC0011 # Comment style checks.
+  - EXC0012 # Actually require docs for exports.
+  - EXC0013 # Actually require docs for exports.
+  - EXC0014 # Actually require docs for exports.
+  - EXC0015 # Actually require docs for exports.
