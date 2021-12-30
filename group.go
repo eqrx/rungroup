@@ -41,14 +41,24 @@ type Group struct {
 
 type (
 	// optionSet contains settings regarding spawned go routines. Only to be used with Option.
-	optionSet struct{ noCancelOnSuccess bool }
+	optionSet struct {
+		noCancelOnSuccess bool
+		noCancelOnError   bool
+	}
 	// Option modifies the settings of a spawned routine with Group.Go.
 	Option func(o *optionSet)
 )
 
-// NoCancelOnSuccess prevents goroutines spawned with Group.Go to cancel the group context then they return
+// NoCancelOnSuccess prevents goroutines spawned with Group.Go to cancel the group context when they return
 // a non nil error. Default is to cancel the group context on return regardless of the returned error.
 func NoCancelOnSuccess(o *optionSet) { o.noCancelOnSuccess = true }
+
+// NeverCancel prevents goroutines spawned with Group.Go to cancel the group context  in any case.
+// Default is to cancel the group context on return regardless of the returned error.
+func NeverCancel(o *optionSet) {
+	o.noCancelOnError = true
+	o.noCancelOnSuccess = true
+}
 
 // New creates group for goroutine management. The context passed as parameter ctx with be taken as parent for the
 // group context. Canceling it will cancel all spawned goroutines. ctx must not be nil.
@@ -58,12 +68,10 @@ func New(ctx context.Context) *Group {
 	return &Group{ctx, cancel, sync.WaitGroup{}, sync.Mutex{}, []error{}}
 }
 
-// Wait block until all goroutines of the group have returned to it and returns a slice containing the errors that were
-// returned by the routines. The slice is never nil and never contains nil values. The lowest index contains the error
-// that was returned by the chronologically first finishing go routine (don't rely on order, there is no anti-scheduler
-// magic here). A zero length slice indicates that no routine returned a non nil error. This method must not be called
-// by multiple goroutines at the same time. After this call returnes, the group may not be reused.
-func (g *Group) Wait() []error {
+// Wait block until all goroutines of the group have returned to it and returns *Error if any error was returned
+// returned by the routines. This method must not be called by multiple goroutines at the same time. After this
+// call returnes, the group may not be reused.
+func (g *Group) Wait() *Error {
 	g.wg.Wait()
 
 	g.mtx.Lock()
@@ -71,16 +79,19 @@ func (g *Group) Wait() []error {
 	g.errs = nil
 	g.mtx.Unlock()
 
-	return errs
+	if len(errs) != 0 {
+		return &Error{errs}
+	}
+
+	return nil
 }
 
 // Go spawns a goroutine and calls the function fn with it. The context of the group is passed as the first
 // argument to it.
 //
 // When any routine spawned by Go return, the following things happen: Panics are not recovered. If the returned error
-// value of fn is non nil it is stored for retrieval by Wait. If NoCancelOnSuccess is part of opts the group context
-// will be canceled if the returned error is not nil. If NoCancelOnSuccess is NOT part of opts the group context will
-// be canceled regardless of the returned error.
+// value of fn is non nil it is stored for retrieval by Wait. Depending on the given options the group context is
+// on returned depending of the error. Default options cause the context always to be canceled.
 //
 // As long as no call from Wait has returned, Go may be called by any goroutines at the same time. Passing nil as fn or
 // part of opts is not allowed.
@@ -95,18 +106,16 @@ func (g *Group) Go(fn func(context.Context) error, opts ...Option) {
 	go func() {
 		defer g.wg.Done()
 
-		if !os.noCancelOnSuccess {
-			defer g.cancel()
-		}
-
 		if err := fn(g.ctx); err != nil {
-			if os.noCancelOnSuccess {
+			if !os.noCancelOnError {
 				g.cancel()
 			}
 
 			g.mtx.Lock()
 			g.errs = append(g.errs, err)
 			g.mtx.Unlock()
+		} else if !os.noCancelOnSuccess {
+			g.cancel()
 		}
 	}()
 }

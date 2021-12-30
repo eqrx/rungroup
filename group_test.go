@@ -56,12 +56,13 @@ func ExampleGroup() {
 		return nil
 	})
 
-	// Wait for all routines to finish and get the error slice. Normally you would go through the list and use the
-	// errors package to identify and handle them. Go supports wrapping only one error so just wrapping and returning
-	// is not an option ;). You have to decide how you want to handle them.
+	// Wait for all routines to finish and get all errors in a bundle. This bundled error does have a Unwrap method
+	// since Go wrapping only supports for unwrap a single error and the code can't decide for you which one is the
+	// most relevant. In case you want to handle all returned errors you may iterate over them. If you print or wrap
+	// it, all wrapped errors will be printed.
 	//
 	// ... and yes, this chicken-egg-solver heavily favours the egg.
-	if errs := group.Wait(); len(errs) != 0 {
-		fmt.Printf("the error group finished with errors: %#v", errs)
+	if err := group.Wait(); err != nil {
+		fmt.Printf("the error group failed: %v", err)
 	}
 }
