@@ -18,7 +18,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/eqrx/rungroup"
+	"dev.eqrx.net/rungroup"
 )
 
 var (
