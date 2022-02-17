@@ -31,6 +31,7 @@ import (
 )
 
 // Group represents a set of goroutines which lifecycles are bound to each other.
+//nolint:containedctx // Group is a context manager and needs to have access to said context.
 type Group struct {
 	ctx    context.Context // Passed to spawned goroutines.
 	cancel func()          // Cancels ctx.
@@ -74,47 +75,47 @@ func New(ctx context.Context) *Group {
 func (g *Group) Wait() *Error {
 	g.wg.Wait()
 
+	var err *Error
+
 	g.mtx.Lock()
-	errs := g.errs
-	g.errs = nil
+	if len(g.errs) != 0 {
+		g.errs = nil
+		err = &Error{g.errs}
+	}
 	g.mtx.Unlock()
 
-	if len(errs) != 0 {
-		return &Error{errs}
-	}
-
-	return nil
+	return err
 }
 
-// Go spawns a goroutine and calls the function fn with it. The context of the group is passed as the first
+// Go spawns a goroutine and calls the function fnc with it. The context of the group is passed as the first
 // argument to it.
 //
 // When any routine spawned by Go return, the following things happen: Panics are not recovered. If the returned error
-// value of fn is non nil it is stored for retrieval by Wait. Depending on the given options the group context is
+// value of fnc is non nil it is stored for retrieval by Wait. Depending on the given options the group context is
 // on returned depending of the error. Default options cause the context always to be canceled.
 //
-// As long as no call from Wait has returned, Go may be called by any goroutines at the same time. Passing nil as fn or
+// As long as no call from Wait has returned, Go may be called by any goroutines at the same time. Passing nil as fnc or
 // part of opts is not allowed.
-func (g *Group) Go(fn func(context.Context) error, opts ...Option) {
+func (g *Group) Go(fnc func(context.Context) error, opts ...Option) {
 	g.wg.Add(1)
 
-	os := &optionSet{}
-	for _, o := range opts {
-		o(os)
+	options := &optionSet{false, false}
+	for _, option := range opts {
+		option(options)
 	}
 
 	go func() {
 		defer g.wg.Done()
 
-		if err := fn(g.ctx); err != nil {
-			if !os.noCancelOnError {
+		if err := fnc(g.ctx); err != nil {
+			if !options.noCancelOnError {
 				g.cancel()
 			}
 
 			g.mtx.Lock()
 			g.errs = append(g.errs, err)
 			g.mtx.Unlock()
-		} else if !os.noCancelOnSuccess {
+		} else if !options.noCancelOnSuccess {
 			g.cancel()
 		}
 	}()
