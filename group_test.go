@@ -18,7 +18,7 @@ import (
 	"errors"
 	"fmt"
 
-	"dev.eqrx.net/rungroup"
+	"eqrx.net/rungroup"
 )
 
 var (

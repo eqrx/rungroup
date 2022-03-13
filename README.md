@@ -1,4 +1,4 @@
-[![Go Reference](https://pkg.go.dev/badge/dev.eqrx.net/rungroup.svg)](https://pkg.go.dev/dev.eqrx.net/rungroup)
+[![Go Reference](https://pkg.go.dev/badge/eqrx.net/rungroup.svg)](https://pkg.go.dev/eqrx.net/rungroup)
 # rungroup
 
 Rungroup provides a way to group the lifecycle of goroutines together. See godoc for all the documentation.
