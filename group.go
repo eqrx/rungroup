@@ -79,8 +79,8 @@ func (g *Group) Wait() *Error {
 
 	g.mtx.Lock()
 	if len(g.errs) != 0 {
-		g.errs = nil
 		err = &Error{g.errs}
+		g.errs = nil
 	}
 	g.mtx.Unlock()
 
