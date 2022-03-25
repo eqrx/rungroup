@@ -13,7 +13,9 @@
 
 package rungroup
 
-import "strings"
+import (
+	"bytes"
+)
 
 // Error wraps multiple errors into one error instance. It does not support unwrapping since the current interface
 // design of Go allows only for one child of an error to be unwrapped. If you need to know the concrete types
@@ -23,18 +25,29 @@ type Error struct {
 }
 
 func (e Error) Error() string {
-	errsLen := len(e.Errs)
-	switch errsLen {
+	errs := e.Errs
+	switch len(errs) {
 	case 0:
 		panic("empty errs")
 	case 1:
 		return e.Errs[0].Error()
 	default:
-		strs := make([]string, 0, errsLen)
-		for _, err := range e.Errs {
-			strs = append(strs, err.Error())
+		buf := bytes.Buffer{}
+		buf.WriteString("[ ")
+
+		for {
+			if len(errs) == 1 {
+				buf.WriteString(errs[0].Error() + " ")
+
+				break
+			}
+
+			buf.WriteString(errs[0].Error() + ", ")
+			errs = errs[1:]
 		}
 
-		return "multiple errors: [\"" + strings.Join(strs, "\", \"") + "\"]"
+		buf.WriteString("]")
+
+		return buf.String()
 	}
 }
