@@ -46,7 +46,6 @@ func TestErrorsEmpty(t *testing.T) {
 	_ = err.Error()
 }
 
-//nolint:goerr113,ifshort
 func TestErrorsOne(t *testing.T) {
 	t.Parallel()
 
@@ -59,7 +58,6 @@ func TestErrorsOne(t *testing.T) {
 	}
 }
 
-//nolint:goerr113,ifshort
 func TestErrorsMany(t *testing.T) {
 	t.Parallel()
 
@@ -77,7 +75,6 @@ func TestErrorsMany(t *testing.T) {
 	}
 }
 
-//nolint:goerr113,ifshort
 func TestErrorsNested(t *testing.T) {
 	t.Parallel()
 

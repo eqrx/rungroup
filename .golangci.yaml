@@ -26,7 +26,6 @@ linters:
     - gocritic
     - gocyclo
     - godot
-    - goerr113
     - gofmt
     - gofumpt
     - goheader
@@ -39,7 +38,6 @@ linters:
     - gosimple
     - govet
     - grouper
-    - ifshort
     - importas
     - ineffassign
     - ireturn
@@ -85,7 +83,9 @@ linters:
     - tagliatelle
     - wsl
     # - exhaustivestruct # Not for general usage.
+    # - goerr113
     # - golint # Deprecated.
+    # - ifshort
     # - interfacer # Deprecated.
     # - maligned # Deprecated.
     # - scopelint # Deprecated.

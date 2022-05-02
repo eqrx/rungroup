@@ -72,19 +72,19 @@ func New(ctx context.Context) *Group {
 // Wait block until all goroutines of the group have returned to it and returns *Error if any error was returned
 // returned by the routines. This method must not be called by multiple goroutines at the same time. After this
 // call returnes, the group may not be reused.
-func (g *Group) Wait() *Error {
+func (g *Group) Wait() error {
 	g.wg.Wait()
-
-	var err *Error
-
 	g.mtx.Lock()
-	if len(g.errs) != 0 {
-		err = &Error{g.errs}
-		g.errs = nil
-	}
-	g.mtx.Unlock()
+	defer g.mtx.Unlock()
 
-	return err
+	errs := g.errs
+	g.errs = nil
+
+	if len(errs) != 0 {
+		return &Error{errs}
+	}
+
+	return nil
 }
 
 // Go spawns a goroutine and calls the function fnc with it. The context of the group is passed as the first
