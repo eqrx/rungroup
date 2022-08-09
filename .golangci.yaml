@@ -1,11 +1,11 @@
 linters:
   disable-all: true
   enable:
+    - asasalint
     - asciicheck
     - bidichk
     - bodyclose
     - containedctx
-    - contextcheck
     - cyclop
     - deadcode
     - decorder
@@ -17,12 +17,10 @@ linters:
     - errchkjson
     - errname
     - errorlint
+    - execinquery
     - exhaustive
-    # - exhaustivestruct # Deprecated.
-    # - exhaustruct
     - exportloopref
     - forbidigo
-    # - forcetypeassert
     - funlen
     - gci
     - gochecknoglobals
@@ -33,13 +31,11 @@ linters:
     - gocyclo
     - godot
     - godox
-    # - goerr113
     - gofmt
     - gofumpt
     - goheader
     - goimports
-    # - golint # Deprecated.
-    # - gomnd
+    - gomnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -47,15 +43,12 @@ linters:
     - gosimple
     - govet
     - grouper
-    #- ifshort
     - importas
     - ineffassign
-    # - interfacer # Deprecated.
-    # - ireturn
+    - ireturn
     - lll
     - maintidx
     - makezero
-    # - maligned # Deprecated.
     - misspell
     - nakedret
     - nestif
@@ -65,17 +58,14 @@ linters:
     - noctx
     - nolintlint
     - nonamedreturns
+    - nosnakecase
     - nosprintfhostport
     - paralleltest
     - prealloc
     - predeclared
     - promlinter
     - revive
-    - rowserrcheck
-    # - scopelint # Deprecated.
-    - sqlclosecheck
     - staticcheck
-    - structcheck
     - stylecheck
     - tagliatelle
     - tenv
@@ -86,11 +76,11 @@ linters:
     - unconvert
     - unparam
     - unused
+    - usestdlibvars
     - varcheck
     - varnamelen
-    - wastedassign
     - whitespace
-    # - wrapcheck
+    - wrapcheck
     - wsl
 issues:
   max-same-issues: 0
@@ -111,3 +101,18 @@ issues:
     - EXC0013 # Actually require docs for exports.
     - EXC0014 # Actually require docs for exports.
     - EXC0015 # Actually require docs for exports.
+linters-settings:
+  goheader:
+    template: |-
+      Copyright (C) 2022 Alexander Sowitzki
+      
+      This program is free software: you can redistribute it and/or modify it under the terms of the
+      GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+      
+      This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+      warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+      details.
+      
+      You should have received a copy of the GNU Affero General Public License along with this program.
+      If not, see <https://www.gnu.org/licenses/>.

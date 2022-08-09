@@ -80,14 +80,9 @@ func TestErrorsNested(t *testing.T) {
 
 	errs := &rungroup.Error{Errs: []error{
 		errors.New("A"),
+		&rungroup.Error{Errs: []error{errors.New("B"), errors.New("C")}},
 		&rungroup.Error{Errs: []error{
-			errors.New("B"),
-			errors.New("C"),
-		}},
-		&rungroup.Error{Errs: []error{
-			&rungroup.Error{Errs: []error{
-				errors.New("D"),
-			}},
+			&rungroup.Error{Errs: []error{errors.New("D")}},
 		}},
 	}}
 

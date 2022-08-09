@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Alexander Sowitzki
+// Copyright (C) 2022 Alexander Sowitzki
 //
 // This program is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or
@@ -17,7 +17,7 @@
 // functions in parallel with goroutines. It tries to be as close to the interface of errgroup but handles the
 // cancelation of its routines and treatment of errors differently.
 //
-// Differences to errgroup
+// # Differences to errgroup
 //
 // Goroutine function gets a context as first argument, a new group does not get handled to the caller with the groups
 // context. By default all routines get canceled as soon as one routine return, regardless if the error is nil or not.
@@ -31,6 +31,7 @@ import (
 )
 
 // Group represents a set of goroutines which lifecycles are bound to each other.
+//
 //nolint:containedctx // Group is a context manager and needs to have access to said context.
 type Group struct {
 	ctx    context.Context // Passed to spawned goroutines.
@@ -48,6 +49,9 @@ type (
 	}
 	// Option modifies the settings of a spawned routine with Group.Go.
 	Option func(o *optionSet)
+
+	// Function specifies the signature of functions that can be run via the group.
+	Function func(context.Context) error
 )
 
 // NoCancelOnSuccess prevents goroutines spawned with Group.Go to cancel the group context when they return
@@ -96,7 +100,7 @@ func (g *Group) Wait() error {
 //
 // As long as no call from Wait has returned, Go may be called by any goroutines at the same time. Passing nil as fnc or
 // part of opts is not allowed.
-func (g *Group) Go(fnc func(context.Context) error, opts ...Option) {
+func (g *Group) Go(fnc Function, opts ...Option) {
 	g.wg.Add(1)
 
 	options := &optionSet{false, false}
